@@ -1,7 +1,32 @@
 .maiale-sheet {
   padding: 12px;
   font-family: Arial, sans-serif;
-  color: #111;
+  color: var(--maiale-text, #111);
+  background: var(--maiale-bg, transparent);
+}
+
+/* Theme variables (default = light) */
+:root {
+  --maiale-text: #111;
+  --maiale-bg: transparent;
+  --maiale-accent: #1f6feb;
+  --maiale-section-bg: #ffffff;
+  --maiale-section-border: #c9c9c9;
+  --maiale-input-bg: #ffffff;
+  --maiale-button-bg: #0057b8;
+  --maiale-button-color: #ffffff;
+}
+
+/* Dark theme overrides used by Foundry */
+html.theme-dark, html.dark, body.theme-dark {
+  --maiale-text: #e6e6e6;
+  --maiale-bg: transparent;
+  --maiale-accent: #2b8cff;
+  --maiale-section-bg: #161616;
+  --maiale-section-border: #333;
+  --maiale-input-bg: #222;
+  --maiale-button-bg: #1f6feb;
+  --maiale-button-color: #ffffff;
 }
 
 .maiale-sheet__header {
@@ -16,12 +41,12 @@
   height: 84px;
   border-radius: 8px;
   overflow: hidden;
-  background: #f4f4f4;
+  background: var(--maiale-section-bg);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border: 1px solid #ddd;
+  border: 1px solid var(--maiale-section-border);
 }
 
 .maiale-sheet__portrait img {
@@ -43,9 +68,9 @@
 .maiale-sheet__meta input[type="text"] {
   padding: 6px;
   border-radius: 4px;
-  border: 1px solid #bbb;
-  background: #fff;
-  color: #111;
+  border: 1px solid var(--maiale-section-border);
+  background: var(--maiale-input-bg);
+  color: var(--maiale-text);
   width: 100%;
 }
 
@@ -53,9 +78,9 @@
   margin-top: 8px;
   padding: 6px 8px;
   border-radius: 4px;
-  border: 1px solid #666;
-  background: #1f6feb;
-  color: #fff;
+  border: 1px solid rgba(0,0,0,0.15);
+  background: var(--maiale-accent);
+  color: var(--maiale-button-color);
   cursor: pointer;
 }
 
@@ -66,14 +91,14 @@
 }
 
 .maiale-sheet__section {
-  border: 1px solid #c9c9c9;
+  border: 1px solid var(--maiale-section-border);
   border-radius: 8px;
   padding: 12px;
-  background: #ffffff;
+  background: var(--maiale-section-bg);
 }
 
 .maiale-sheet__section h2 {
-  color: #111 !important;
+  color: var(--maiale-text) !important;
   font-weight: 700;
   font-size: 1.2rem;
   margin: 0 0 8px 0;
@@ -106,9 +131,9 @@
 .maiale-sheet__controls button {
   padding: 6px 10px;
   border-radius: 4px;
-  border: 1px solid #333;
-  background: #0057b8;
-  color: white;
+  border: 1px solid rgba(0,0,0,0.15);
+  background: var(--maiale-button-bg);
+  color: var(--maiale-button-color);
   cursor: pointer;
 }
 

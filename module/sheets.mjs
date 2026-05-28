@@ -1,3 +1,23 @@
+// Utility: expand flat keys like "system.ability" into nested objects { system: { ability: value } }
+function _expandObject(flat) {
+  const out = {};
+  for (const key of Object.keys(flat)) {
+    const value = flat[key];
+    const parts = key.split(".");
+    let cur = out;
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i];
+      if (i === parts.length - 1) {
+        cur[p] = value;
+      } else {
+        cur[p] = cur[p] || {};
+        cur = cur[p];
+      }
+    }
+  }
+  return out;
+}
+
 export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["maiale", "sheet", "actor"],
@@ -82,7 +102,8 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
     event.preventDefault();
 
     const die = this.document.system.gambit || "d6";
-    const roll = new Roll(die);
+    const expr = die.startsWith("d") ? `1${die}` : die;
+    const roll = new Roll(expr);
     await roll.evaluate({ async: true });
 
     const speaker = ChatMessage.getSpeaker({ actor: this.document });
@@ -95,9 +116,48 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
 
   async _onEditPortrait(event) {
     event.preventDefault();
-    // Open the prototype TokenConfig so tokenizer or other modules can intercept
-    const config = new TokenConfig({ actor: this.document, isPrototype: true });
-    await config.render(true);
+    // Try multiple constructor patterns for TokenConfig so third-party modules
+    // (e.g., Tokenizer) that hook TokenConfig rendering can intercept correctly.
+    try {
+      // Pattern 1: TokenConfig(actor, { isPrototype: true })
+      if (typeof TokenConfig === "function") {
+        try {
+          const cfg = new TokenConfig(this.document, { isPrototype: true });
+          await cfg.render(true);
+          return;
+        } catch (err) {
+          // ignore and try next
+        }
+        try {
+          const cfg = new TokenConfig({ actor: this.document, isPrototype: true });
+          await cfg.render(true);
+          return;
+        } catch (err) {
+          // ignore and try next
+        }
+      }
+      // Pattern 2: foundry.applications.sheets.TokenConfig
+      const Tc = foundry?.applications?.sheets?.TokenConfig;
+      if (Tc) {
+        try {
+          const cfg = new Tc(this.document, { isPrototype: true });
+          await cfg.render(true);
+          return;
+        } catch (err) {
+          try {
+            const cfg = new Tc({ actor: this.document, isPrototype: true });
+            await cfg.render(true);
+            return;
+          } catch (err2) {
+            // nothing
+          }
+        }
+      }
+      ui.notifications?.warn("Token configuration UI non disponibile");
+    } catch (err) {
+      console.error("Maiale | _onEditPortrait error", err);
+      ui.notifications?.error("Impossibile aprire la configurazione del token");
+    }
   }
 
   async _onSave(event) {
@@ -105,16 +165,18 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
     const form = this.element.querySelector("form");
     if (!form) return;
     const formData = new FormData(form);
-    const updates = {};
+    const flat = {};
     for (const [name, value] of formData.entries()) {
       const fieldEl = form.querySelector(`[name="${name}"]`);
       let val = value;
       if (fieldEl?.type === "number") val = Number(value);
       if (fieldEl?.type === "checkbox") val = fieldEl.checked;
-      updates[name] = val;
+      flat[name] = val;
     }
+    const nested = _expandObject(flat);
     try {
-      await this.document.update(updates);
+      console.log("Maiale | saving:", nested);
+      await this.document.update(nested);
       ui.notifications?.info("Scheda salvata");
     } catch (err) {
       console.error("Maiale | Save failed:", err);
