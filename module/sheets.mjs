@@ -58,10 +58,19 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
 
   activateListeners(html) {
     super.activateListeners(html);
-    html.on("click", "button[data-action='save']", this._onSave.bind(this));
-    html.on("click", "button[data-action='rollAction']", this._onRollAction.bind(this));
-    html.on("click", "button[data-action='rollGambit']", this._onRollGambit.bind(this));
-    html.on("click", ".maiale-sheet__portrait", this._onEditPortrait.bind(this));
+    console.log("Maiale | activateListeners: binding events");
+    const root = this.element;
+    if (!root) return;
+
+    const bind = (selector, type, handler) => {
+      root.querySelectorAll(selector).forEach((el) => el.addEventListener(type, handler));
+    };
+
+    bind("button[data-action='save']", "click", this._onSave.bind(this));
+    bind("button[data-action='rollAction']", "click", this._onRollAction.bind(this));
+    bind("button[data-action='rollGambit']", "click", this._onRollGambit.bind(this));
+    const portrait = root.querySelector(".maiale-sheet__portrait");
+    if (portrait) portrait.addEventListener("click", this._onEditPortrait.bind(this));
   }
 
   async _onFieldChange(event) {
@@ -75,6 +84,7 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
 
   async _onRollAction(event) {
     event.preventDefault();
+    console.log("Maiale | _onRollAction", this.document?.id, this.document?.name);
 
     const roll = new Roll("1d20");
     await roll.evaluate({ async: true });
@@ -100,6 +110,7 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
 
   async _onRollGambit(event) {
     event.preventDefault();
+    console.log("Maiale | _onRollGambit", this.document?.id, this.document?.name, this.document?.system?.gambit);
 
     const die = this.document.system.gambit || "d6";
     const expr = die.startsWith("d") ? `1${die}` : die;
@@ -116,6 +127,7 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
 
   async _onEditPortrait(event) {
     event.preventDefault();
+    console.log("Maiale | _onEditPortrait invoked for", this.document?.id, this.document?.name);
     // Try multiple constructor patterns for TokenConfig so third-party modules
     // (e.g., Tokenizer) that hook TokenConfig rendering can intercept correctly.
     try {

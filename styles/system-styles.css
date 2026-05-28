@@ -15,6 +15,7 @@
   --maiale-input-bg: #ffffff;
   --maiale-button-bg: #0057b8;
   --maiale-button-color: #ffffff;
+  --maiale-placeholder: #666;
 }
 
 /* Dark theme overrides used by Foundry */
@@ -27,6 +28,7 @@ html.theme-dark, html.dark, body.theme-dark {
   --maiale-input-bg: #222;
   --maiale-button-bg: #1f6feb;
   --maiale-button-color: #ffffff;
+  --maiale-placeholder: #9aa0a6;
 }
 
 .maiale-sheet__header {
@@ -61,7 +63,7 @@ html.theme-dark, html.dark, body.theme-dark {
 .maiale-sheet__meta label {
   display: block;
   font-weight: bold;
-  color: #222;
+  color: var(--maiale-text);
   margin-bottom: 4px;
 }
 
@@ -72,6 +74,12 @@ html.theme-dark, html.dark, body.theme-dark {
   background: var(--maiale-input-bg);
   color: var(--maiale-text);
   width: 100%;
+}
+
+.maiale-sheet__meta input::placeholder,
+.maiale-sheet__field input::placeholder,
+.maiale-sheet__controls select::placeholder {
+  color: var(--maiale-placeholder);
 }
 
 .maiale-sheet__save {
@@ -105,7 +113,7 @@ html.theme-dark, html.dark, body.theme-dark {
 }
 
 .maiale-sheet__section p {
-  color: #222;
+  color: var(--maiale-text);
 }
 
 .maiale-sheet__field {
@@ -118,7 +126,7 @@ html.theme-dark, html.dark, body.theme-dark {
 .maiale-sheet__field label,
 .maiale-sheet__controls label {
   font-weight: bold;
-  color: #222;
+  color: var(--maiale-text);
 }
 
 .maiale-sheet__controls {
@@ -141,7 +149,7 @@ html.theme-dark, html.dark, body.theme-dark {
 .maiale-sheet__field input {
   padding: 6px;
   border-radius: 4px;
-  border: 1px solid #999;
-  background: #fff;
-  color: #111;
+  border: 1px solid var(--maiale-section-border);
+  background: var(--maiale-input-bg);
+  color: var(--maiale-text);
 }
