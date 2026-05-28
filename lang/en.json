@@ -1,0 +1,11 @@
+{
+  "MAIALE": {
+    "Sheet": {
+      "Ability": "Expertise",
+      "Flaw": "Flaw",
+      "Cutaway": "Cutaway failures",
+      "ActionRoll": "Roll Action (d20)",
+      "Gambit": "Gambit die"
+    }
+  }
+}

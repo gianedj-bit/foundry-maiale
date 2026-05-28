@@ -1,0 +1,38 @@
+{
+  "id": "maiale-a-un-matrimonio",
+  "title": "Maiale a un matrimonio",
+  "description": "Sistema Foundry minimale per la one-shot Maiale a un matrimonio.",
+  "version": "0.0.1",
+  "compatibility": {
+    "minimum": 12,
+    "verified": 12
+  },
+  "authors": [
+    {
+      "name": "Alex Gianelli"
+    }
+  ],
+  "esmodules": [
+    "maiale-a-un-matrimonio.mjs"
+  ],
+  "styles": [
+    "styles/system-styles.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "character": {
+        "htmlFields": [
+          "ability",
+          "flaw"
+        ]
+      }
+    }
+  }
+}
