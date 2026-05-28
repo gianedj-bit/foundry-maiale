@@ -19,4 +19,22 @@ Hooks.once("init", async function () {
     makeDefault: true,
     label: "Maiale Sheet",
   });
+
+  // Ensure newly created characters have a usable portrait and prototype token
+  Hooks.on("createActor", async (actor, options, userId) => {
+    try {
+      if (actor.type !== "character") return;
+      const defaultImg = "icons/svg/mystery-man.svg";
+      const updates = {};
+      if (!actor.img) updates.img = defaultImg;
+      const proto = actor.prototypeToken || {};
+      const protoHasImage = proto.texture?.src || proto.img;
+      if (!protoHasImage) {
+        updates.prototypeToken = Object.assign({}, proto, { texture: { src: actor.img || updates.img || defaultImg } });
+      }
+      if (Object.keys(updates).length) await actor.update(updates);
+    } catch (err) {
+      console.error("Maiale | Error setting default token:", err);
+    }
+  });
 });

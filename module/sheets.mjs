@@ -42,13 +42,14 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
     html.on("change", "input, select", this._onFieldChange.bind(this));
     html.on("click", "button[data-action='rollAction']", this._onRollAction.bind(this));
     html.on("click", "button[data-action='rollGambit']", this._onRollGambit.bind(this));
+    html.on("click", ".maiale-sheet__portrait", this._onEditPortrait.bind(this));
+    html.on("click", ".maiale-sheet__token-config", this._onTokenConfig.bind(this));
   }
 
   async _onFieldChange(event) {
     const target = event.currentTarget;
     const field = target.name;
-
-    if (!field?.startsWith("system.")) return;
+    if (!field) return;
 
     const value = target.type === "number" ? Number(target.value) : target.value;
     await this.document.update({ [field]: value });
@@ -92,5 +93,28 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
       flavor: `<strong>${this.document.name}</strong> rolls Gambit (${die})`,
       create: true,
     });
+  }
+
+  async _onEditPortrait(event) {
+    event.preventDefault();
+    const fp = new FilePicker({
+      type: "image",
+      callback: async (path) => {
+        if (!path) return;
+        const updates = { img: path };
+        const proto = this.document.prototypeToken || {};
+        const newProto = Object.assign({}, proto, { texture: { ...(proto.texture || {}), src: path } });
+        updates.prototypeToken = newProto;
+        await this.document.update(updates);
+      },
+    });
+    fp.render(true);
+  }
+
+  async _onTokenConfig(event) {
+    event.preventDefault();
+    // Open prototype token config for this actor
+    const config = new TokenConfig({ actor: this.document, isPrototype: true });
+    await config.render(true);
   }
 }
