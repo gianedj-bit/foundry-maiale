@@ -1,12 +1,12 @@
 <form class="maiale-sheet" autocomplete="off">
   <header class="maiale-sheet__header">
-    <div class="maiale-sheet__portrait" title="Change portrait">
+    <div class="maiale-sheet__portrait" title="Configure Token">
       <img src="{{#if document.img}}{{document.img}}{{else}}{{#if document.prototypeToken}}{{document.prototypeToken.texture.src}}{{else}}icons/svg/mystery-man.svg{{/if}}{{/if}}" alt="portrait" />
     </div>
     <div class="maiale-sheet__meta">
       <label for="actor-name">Name</label>
       <input type="text" id="actor-name" name="name" value="{{document.name}}" />
-      <button type="button" class="maiale-sheet__token-config" data-action="configureToken">Configure Token</button>
+      <button type="button" class="maiale-sheet__save" data-action="save">Salva</button>
     </div>
   </header>
   <section class="maiale-sheet__body">

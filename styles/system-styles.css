@@ -1,9 +1,6 @@
 .maiale-sheet {
   padding: 12px;
   font-family: Arial, sans-serif;
-.maiale-sheet {
-  padding: 12px;
-  font-family: Arial, sans-serif;
   color: #111;
 }
 
@@ -34,6 +31,8 @@
   display: block;
 }
 
+.maiale-sheet__meta { flex: 1; }
+
 .maiale-sheet__meta label {
   display: block;
   font-weight: bold;
@@ -47,9 +46,10 @@
   border: 1px solid #bbb;
   background: #fff;
   color: #111;
+  width: 100%;
 }
 
-.maiale-sheet__token-config {
+.maiale-sheet__save {
   margin-top: 8px;
   padding: 6px 8px;
   border-radius: 4px;
@@ -70,6 +70,17 @@
   border-radius: 8px;
   padding: 12px;
   background: #ffffff;
+}
+
+.maiale-sheet__section h2 {
+  color: #111 !important;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin: 0 0 8px 0;
+}
+
+.maiale-sheet__section p {
+  color: #222;
 }
 
 .maiale-sheet__field {
@@ -108,8 +119,4 @@
   border: 1px solid #999;
   background: #fff;
   color: #111;
-}
-  padding: 6px;
-  border-radius: 4px;
-  border: 1px solid #999;
 }

@@ -38,12 +38,10 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
 
   activateListeners(html) {
     super.activateListeners(html);
-
-    html.on("change", "input, select", this._onFieldChange.bind(this));
+    html.on("click", "button[data-action='save']", this._onSave.bind(this));
     html.on("click", "button[data-action='rollAction']", this._onRollAction.bind(this));
     html.on("click", "button[data-action='rollGambit']", this._onRollGambit.bind(this));
     html.on("click", ".maiale-sheet__portrait", this._onEditPortrait.bind(this));
-    html.on("click", ".maiale-sheet__token-config", this._onTokenConfig.bind(this));
   }
 
   async _onFieldChange(event) {
@@ -59,7 +57,7 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
     event.preventDefault();
 
     const roll = new Roll("1d20");
-    await roll.evaluate();
+    await roll.evaluate({ async: true });
 
     const speaker = ChatMessage.getSpeaker({ actor: this.document });
     await roll.toMessage({
@@ -85,7 +83,7 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
 
     const die = this.document.system.gambit || "d6";
     const roll = new Roll(die);
-    await roll.evaluate();
+    await roll.evaluate({ async: true });
 
     const speaker = ChatMessage.getSpeaker({ actor: this.document });
     await roll.toMessage({
@@ -97,24 +95,30 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
 
   async _onEditPortrait(event) {
     event.preventDefault();
-    const fp = new FilePicker({
-      type: "image",
-      callback: async (path) => {
-        if (!path) return;
-        const updates = { img: path };
-        const proto = this.document.prototypeToken || {};
-        const newProto = Object.assign({}, proto, { texture: { ...(proto.texture || {}), src: path } });
-        updates.prototypeToken = newProto;
-        await this.document.update(updates);
-      },
-    });
-    fp.render(true);
-  }
-
-  async _onTokenConfig(event) {
-    event.preventDefault();
-    // Open prototype token config for this actor
+    // Open the prototype TokenConfig so tokenizer or other modules can intercept
     const config = new TokenConfig({ actor: this.document, isPrototype: true });
     await config.render(true);
+  }
+
+  async _onSave(event) {
+    event.preventDefault();
+    const form = this.element.querySelector("form");
+    if (!form) return;
+    const formData = new FormData(form);
+    const updates = {};
+    for (const [name, value] of formData.entries()) {
+      const fieldEl = form.querySelector(`[name="${name}"]`);
+      let val = value;
+      if (fieldEl?.type === "number") val = Number(value);
+      if (fieldEl?.type === "checkbox") val = fieldEl.checked;
+      updates[name] = val;
+    }
+    try {
+      await this.document.update(updates);
+      ui.notifications?.info("Scheda salvata");
+    } catch (err) {
+      console.error("Maiale | Save failed:", err);
+      ui.notifications?.error("Errore nel salvataggio della scheda");
+    }
   }
 }
