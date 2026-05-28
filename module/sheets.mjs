@@ -1,4 +1,4 @@
-export class MaialeActorSheet extends foundry.applications.sheets.ActorSheetV2 {
+export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["maiale", "sheet", "actor"],
     position: {
@@ -10,6 +10,10 @@ export class MaialeActorSheet extends foundry.applications.sheets.ActorSheetV2 {
       icon: "fas fa-user",
     },
   };
+
+  static get defaultOptions() {
+    return mergeObject(super.defaultOptions, this.DEFAULT_OPTIONS);
+  }
 
   static PARTS = {
     main: {
