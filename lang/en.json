@@ -1,5 +1,24 @@
 {
+  "TYPES": {
+    "Actor": {
+      "character": "Personaggio"
+    }
+  },
   "MAIALE": {
+    "FIELDS": {
+      "ability": {
+        "label": "Expertise"
+      },
+      "flaw": {
+        "label": "Flaw"
+      },
+      "cutaway": {
+        "label": "Cutaway failures"
+      },
+      "gambit": {
+        "label": "Gambit die"
+      }
+    },
     "Sheet": {
       "Ability": "Expertise",
       "Flaw": "Flaw",

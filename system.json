@@ -2,10 +2,10 @@
   "id": "maiale-a-un-matrimonio",
   "title": "Maiale a un matrimonio",
   "description": "Sistema Foundry minimale per la one-shot Maiale a un matrimonio.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "compatibility": {
     "minimum": 12,
-    "verified": 12
+    "verified": 13
   },
   "authors": [
     {

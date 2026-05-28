@@ -1,4 +1,6 @@
 export class MaialeCharacterData extends foundry.abstract.TypeDataModel {
+  static LOCALIZATION_PREFIXES = ["MAIALE"];
+
   static defineSchema() {
     const fields = foundry.data.fields;
 
