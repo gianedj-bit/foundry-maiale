@@ -1,4 +1,5 @@
 // Note: prefer Foundry's expandObject util where available (foundry.utils.expandObject).
+const ACTOR_SHEET_TEMPLATE = new URL("../templates/actor-sheet.hbs", import.meta.url).pathname;
 
 export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
   static DEFAULT_OPTIONS = {
@@ -19,7 +20,7 @@ export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicatio
 
   static PARTS = {
     main: {
-      template: "templates/actor-sheet.hbs",
+      template: ACTOR_SHEET_TEMPLATE,
     },
   };
 
