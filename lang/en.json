@@ -12,6 +12,9 @@
       "abilityBonus": {
         "label": "Ability Bonus"
       },
+      "hateBonus": {
+        "label": "Hate Bonus"
+      },
       "flaw": {
         "label": "Flaw"
       },
@@ -27,7 +30,8 @@
       "Flaw": "Flaw",
       "Cutaway": "Cutaway failures",
       "ActionRoll": "Roll Action (d20)",
-      "Gambit": "Gambit Difficulty"
+      "Gambit": "Gambit Difficulty",
+      "HateBonus": "Hate Bonus"
     }
   }
 }

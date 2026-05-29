@@ -22,13 +22,13 @@
       </div>
       <div class="actor-sheet__field">
         <label for="cutaway">Cutaway failures</label>
-        <input type="number" min="0" data-dtype="Number" name="system.cutaway" id="cutaway" value="{{system.cutaway}}" />
+        <input type="number" min="0" data-dtype="Number" name="system.cutaway" id="cutaway" value="{{system.cutaway}}" {{#unless canEditCutaway}}disabled{{/unless}} />
       </div>
     </div>
 
     <div class="actor-sheet__section">
       <h2>Rolls</h2>
-      <p>Use the button below to roll Action and Gambit as separate chat messages.</p>
+      <p>Use the button below to roll your <b>Action</b>. Ask the GM for the <b>Gambit Difficulty</b> and <b>Ability Bonus</b>. When cutaway failures exceed 1, you can also enable <b>Hate Bonus</b>.</p>
 
       <div class="actor-sheet__controls actor-sheet__controls--bonus">
         <span class="actor-sheet__controls-title">Ability Bonus</span>
@@ -41,6 +41,20 @@
           On (+3)
         </label>
       </div>
+
+      {{#if showHateBonus}}
+      <div class="actor-sheet__controls actor-sheet__controls--bonus">
+        <span class="actor-sheet__controls-title">Hate Bonus</span>
+        <label class="actor-sheet__radio-option" for="hate-bonus-off">
+          <input type="radio" id="hate-bonus-off" name="system.hateBonus" value="false" data-dtype="Boolean" {{#unless system.hateBonus}}checked{{/unless}} />
+          Off
+        </label>
+        <label class="actor-sheet__radio-option" for="hate-bonus-on">
+          <input type="radio" id="hate-bonus-on" name="system.hateBonus" value="true" data-dtype="Boolean" {{#if system.hateBonus}}checked{{/if}} />
+          On (+2)
+        </label>
+      </div>
+      {{/if}}
 
       <div class="actor-sheet__controls actor-sheet__controls--gambit">
         <label for="gambit">Gambit Difficulty</label>

@@ -40,6 +40,8 @@ export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicatio
     const actor = this.document;
 
     context.system = actor.system;
+    context.canEditCutaway = game.user?.isGM ?? false;
+    context.showHateBonus = Number(actor.system.cutaway ?? 0) > 1;
     context.gambitOptions = [
       { value: "d4", label: "Low", selected: actor.system.gambit === "d4" },
       { value: "d6", label: "Basic", selected: actor.system.gambit === "d6" },
@@ -101,6 +103,10 @@ export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicatio
     console.log("Actor | _onSave", this.document?.id, this.document?.name);
     try {
       const submitData = this._collectSubmitData();
+      if (!game.user?.isGM) {
+        foundry.utils.unsetProperty?.(submitData, "system.cutaway");
+        if (submitData.system && !Object.keys(submitData.system).length) delete submitData.system;
+      }
       console.log("Actor | save data:", submitData);
       await this.document.update(submitData);
       ui.notifications?.info("Sheet saved");
@@ -112,17 +118,24 @@ export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicatio
 
   async _rollAction() {
     const abilityBonusEnabled = this._getCurrentValue("system.abilityBonus", this.document.system.abilityBonus ?? false);
+    const hateBonusAvailable = Number(this.document.system.cutaway ?? 0) > 1;
+    const hateBonusEnabled = hateBonusAvailable && this._getCurrentValue("system.hateBonus", this.document.system.hateBonus ?? false);
     const abilityBonus = abilityBonusEnabled ? 3 : 0;
-    const formula = abilityBonus ? "1d20 + 3" : "1d20";
+    const hateBonus = hateBonusEnabled ? 2 : 0;
+    const totalBonus = abilityBonus + hateBonus;
+    const formula = totalBonus ? `1d20 + ${totalBonus}` : "1d20";
 
-    console.log("Actor | _rollAction", this.document?.id, this.document?.name, { abilityBonusEnabled });
+    console.log("Actor | _rollAction", this.document?.id, this.document?.name, { abilityBonusEnabled, hateBonusEnabled, hateBonusAvailable });
     try {
       const roll = new Roll(formula);
       await roll.evaluate();
 
       const speaker = ChatMessage.getSpeaker({ actor: this.document });
-      const flavor = abilityBonus
-        ? `<strong>${this.document.name}</strong> rolls Action (d20 + ability bonus +3)`
+      const bonusParts = [];
+      if (abilityBonusEnabled) bonusParts.push("ability bonus +3");
+      if (hateBonusEnabled) bonusParts.push("hate bonus +2");
+      const flavor = bonusParts.length
+        ? `<strong>${this.document.name}</strong> rolls Action (d20 + ${bonusParts.join(" + ")})`
         : `<strong>${this.document.name}</strong> rolls Action (d20)`;
       try {
         await roll.toMessage({ speaker, flavor, create: true });
@@ -134,7 +147,7 @@ export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicatio
       const failureThreshold = 10;
       if (roll.total <= failureThreshold) {
         const nextCutaway = Number(this.document.system.cutaway || 0) + 1;
-        await this.document.update({ system: { cutaway: nextCutaway } });
+        await this.document.update({ system: { cutaway: nextCutaway } }, { allowCutawayIncrement: true });
 
         await ChatMessage.create({ speaker, content: `<p><strong>${this.document.name}</strong> failed the action. Cutaway failures increased to <strong>${nextCutaway}</strong>.</p>` });
       }

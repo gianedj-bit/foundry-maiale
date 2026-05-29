@@ -20,6 +20,18 @@ Hooks.once("init", async function () {
     label: "Actor Sheet",
   });
 
+  Hooks.on("preUpdateActor", (actor, changed, options, userId) => {
+    if (actor.type !== "character") return;
+    if (options?.allowCutawayIncrement) return;
+
+    const requestingUser = game.users?.get(userId);
+    if (requestingUser?.isGM) return;
+    if (!foundry.utils.hasProperty(changed, "system.cutaway")) return;
+
+    foundry.utils.unsetProperty(changed, "system.cutaway");
+    if (changed.system && !Object.keys(changed.system).length) delete changed.system;
+  });
+
   // Ensure newly created characters have a usable portrait and prototype token
   Hooks.on("createActor", async (actor, options, userId) => {
     try {
