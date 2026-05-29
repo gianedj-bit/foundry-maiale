@@ -207,6 +207,26 @@ html.theme-dark, html.dark, body.theme-dark {
   color: var(--actor-text);
 }
 
+.paw-action-result {
+  font-weight: 700;
+}
+
+.paw-action-result--disaster,
+.paw-action-result--failure {
+  color: #b42318 !important;
+  background: #fff1f0;
+}
+
+.paw-action-result--success {
+  color: #111111 !important;
+  background: #f3f4f6;
+}
+
+.paw-action-result--critical-success {
+  color: #067647 !important;
+  background: #ecfdf3;
+}
+
 @media (max-width: 720px) {
   .actor-sheet__portrait {
     width: 72px;

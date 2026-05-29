@@ -150,6 +150,30 @@ export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicatio
     }
   }
 
+  _getActionOutcome(total) {
+    if (total >= 20) return { key: "critical-success", label: "Critical Success" };
+    if (total <= 5) return { key: "disaster", label: "Disaster" };
+    if (total <= 10) return { key: "failure", label: "Failure" };
+    return { key: "success", label: "Success" };
+  }
+
+  async _postActionRollMessage({ roll, speaker, flavor, outcome }) {
+    try {
+      const rendered = await roll.render({ flavor });
+      const content = rendered.replace(
+        /class="dice-total"/,
+        `class="dice-total paw-action-result paw-action-result--${outcome.key}"`
+      );
+      await ChatMessage.create({ speaker, content });
+    } catch (err) {
+      console.warn("Actor | custom action roll render failed, falling back", err);
+      await ChatMessage.create({
+        speaker,
+        content: `${flavor}: <span class="paw-action-result paw-action-result--${outcome.key}"><strong>${outcome.label}: ${roll.total}</strong></span>`,
+      });
+    }
+  }
+
   async _rollAction() {
     const abilityBonusEnabled = this._getCurrentValue("system.abilityBonus", this.document.system.abilityBonus ?? false);
     const hateBonusAvailable = Number(this.document.system.cutaway ?? 0) > 1;
@@ -165,18 +189,15 @@ export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicatio
       await roll.evaluate();
 
       const speaker = ChatMessage.getSpeaker({ actor: this.document });
+      const outcome = this._getActionOutcome(roll.total);
       const bonusParts = [];
       if (abilityBonusEnabled) bonusParts.push("ability bonus +3");
       if (hateBonusEnabled) bonusParts.push("hate bonus +2");
       const flavor = bonusParts.length
-        ? `<strong>${this.document.name}</strong> rolls Action (d20 + ${bonusParts.join(" + ")})`
-        : `<strong>${this.document.name}</strong> rolls Action (d20)`;
-      try {
-        await roll.toMessage({ speaker, flavor, create: true });
-      } catch (err) {
-        console.warn("Actor | roll.toMessage failed, falling back to ChatMessage.create", err);
-        await ChatMessage.create({ speaker, content: `${flavor}: <strong>${roll.total}</strong>` });
-      }
+        ? `<strong>${this.document.name}</strong> rolls Action (d20 + ${bonusParts.join(" + ")})<br><em>${outcome.label}</em>`
+        : `<strong>${this.document.name}</strong> rolls Action (d20)<br><em>${outcome.label}</em>`;
+
+      await this._postActionRollMessage({ roll, speaker, flavor, outcome });
 
       const failureThreshold = 10;
       if (roll.total <= failureThreshold) {
@@ -185,26 +206,32 @@ export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicatio
 
         await ChatMessage.create({ speaker, content: `<p><strong>${this.document.name}</strong> failed the action. Cutaway failures increased to <strong>${nextCutaway}</strong>.</p>` });
       }
+
+      return { isCriticalSuccess: outcome.key === "critical-success", outcome, total: roll.total };
     } catch (err) {
       console.error("Actor | _onRollAction error", err);
       ui.notifications?.error("Action roll failed");
     }
   }
 
-  async _rollGambit() {
+  async _rollGambit({ addCriticalDie = false } = {}) {
     const die = this._getCurrentValue("system.gambit", this.document.system.gambit || "d6");
-    console.log("Actor | _rollGambit", this.document?.id, this.document?.name, die);
+    console.log("Actor | _rollGambit", this.document?.id, this.document?.name, die, { addCriticalDie });
     try {
-      const expr = die.startsWith("d") ? `1${die}` : die;
+      const baseExpr = die.startsWith("d") ? `1${die}` : die;
+      const expr = addCriticalDie ? `${baseExpr} + 1d6` : baseExpr;
       const roll = new Roll(expr);
       await roll.evaluate();
 
       const speaker = ChatMessage.getSpeaker({ actor: this.document });
+      const flavor = addCriticalDie
+        ? `<strong>${this.document.name}</strong> rolls Gambit Difficulty (${die} + critical bonus d6)`
+        : `<strong>${this.document.name}</strong> rolls Gambit Difficulty (${die})`;
       try {
-        await roll.toMessage({ speaker, flavor: `<strong>${this.document.name}</strong> rolls Gambit Difficulty (${die})`, create: true });
+        await roll.toMessage({ speaker, flavor, create: true });
       } catch (err) {
         console.warn("Actor | gambit roll.toMessage failed, falling back", err);
-        await ChatMessage.create({ speaker, content: `<strong>${this.document.name}</strong> rolls Gambit Difficulty (${die}): <strong>${roll.total}</strong>` });
+        await ChatMessage.create({ speaker, content: `${flavor}: <strong>${roll.total}</strong>` });
       }
     } catch (err) {
       console.error("Actor | _onRollGambit error", err);
@@ -215,8 +242,8 @@ export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicatio
   async _onRollAll(event) {
     console.log("Actor | _onRollAll", this.document?.id, this.document?.name);
     try {
-      await this._rollAction();
-      await this._rollGambit();
+      const actionResult = await this._rollAction();
+      await this._rollGambit({ addCriticalDie: actionResult?.isCriticalSuccess ?? false });
     } catch (err) {
       console.error("Actor | _onRollAll error", err);
       ui.notifications?.error("Roll failed");
