@@ -1,6 +1,8 @@
 // Note: prefer Foundry's expandObject util where available (foundry.utils.expandObject).
 const SYSTEM_ID = "pig-at-a-wedding";
 const ACTOR_SHEET_TEMPLATE = `systems/${SYSTEM_ID}/templates/actor-sheet.hbs`;
+const DEFAULT_LAYOUT = Object.freeze({ width: 720, height: 760 });
+const EXPANDED_LAYOUT = Object.freeze({ width: 760, height: 820 });
 
 export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
   static DEFAULT_OPTIONS = {
@@ -10,12 +12,13 @@ export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicatio
     },
     classes: ["actor", "sheet"],
     position: {
-      width: 600,
-      height: 620,
+      width: DEFAULT_LAYOUT.width,
+      height: DEFAULT_LAYOUT.height,
     },
     window: {
       title: "Character",
       icon: "fas fa-user",
+      resizable: true,
     },
   };
 
@@ -50,6 +53,37 @@ export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicatio
     ];
 
     return context;
+  }
+
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    this._syncWindowLayout(Boolean(context.showHateBonus));
+  }
+
+  _syncWindowLayout(showExpandedControls) {
+    const layout = showExpandedControls ? EXPANDED_LAYOUT : DEFAULT_LAYOUT;
+    const viewportWidth = Math.max(window.innerWidth - 64, 560);
+    const viewportHeight = Math.max(window.innerHeight - 64, 560);
+    const minWidth = Math.min(layout.width, viewportWidth);
+    const minHeight = Math.min(layout.height, viewportHeight);
+    const maxWidth = Math.min(960, viewportWidth);
+    const maxHeight = Math.min(900, viewportHeight);
+
+    if (this.element) {
+      this.element.style.minWidth = `${minWidth}px`;
+      this.element.style.maxWidth = `${maxWidth}px`;
+      this.element.style.minHeight = `${minHeight}px`;
+      this.element.style.maxHeight = `${maxHeight}px`;
+    }
+
+    const currentWidth = typeof this.position?.width === "number" ? this.position.width : minWidth;
+    const currentHeight = typeof this.position?.height === "number" ? this.position.height : minHeight;
+    const targetWidth = Math.min(Math.max(currentWidth, minWidth), maxWidth);
+    const targetHeight = Math.min(Math.max(currentHeight, minHeight), maxHeight);
+
+    if ((targetWidth !== currentWidth) || (targetHeight !== currentHeight)) {
+      this.setPosition({ width: targetWidth, height: targetHeight });
+    }
   }
 
   _getSheetRoot() {
