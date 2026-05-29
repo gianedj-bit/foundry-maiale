@@ -1,5 +1,6 @@
 // Note: prefer Foundry's expandObject util where available (foundry.utils.expandObject).
-const ACTOR_SHEET_TEMPLATE = new URL("../templates/actor-sheet.hbs", import.meta.url).pathname;
+const SYSTEM_ID = "pig-at-a-wedding";
+const ACTOR_SHEET_TEMPLATE = `systems/${SYSTEM_ID}/templates/actor-sheet.hbs`;
 
 export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
   static DEFAULT_OPTIONS = {

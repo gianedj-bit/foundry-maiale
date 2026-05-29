@@ -2,7 +2,7 @@
   "id": "pig-at-a-wedding",
   "title": "Pig at a Wedding",
   "description": "Minimal Foundry system for the Pig at a Wedding one-shot.",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "compatibility": {
     "minimum": 12,
     "verified": 13
