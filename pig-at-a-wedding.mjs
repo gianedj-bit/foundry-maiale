@@ -1,23 +1,23 @@
-import { MaialeCharacterData } from "./module/data-models.mjs";
-import { MaialeActorSheet } from "./module/sheets.mjs";
+import { PAWActorCharacterData } from "./module/data-models.mjs";
+import { PAWActorSheet } from "./module/sheets.mjs";
 
 Hooks.once("init", async function () {
-  console.log("Maiale a un matrimonio | Sistema inizializzato");
+  console.log("Pig at a Wedding | System initialized");
 
-  const actorModelKey = "maiale-a-un-matrimonio.character";
+  const actorModelKey = "pig-at-a-wedding.character";
   CONFIG.Actor.dataModels = CONFIG.Actor.dataModels ?? {};
   Object.assign(CONFIG.Actor.dataModels, {
-    [actorModelKey]: MaialeCharacterData,
-    character: MaialeCharacterData,
+    [actorModelKey]: PAWActorCharacterData,
+    character: PAWActorCharacterData,
   });
 
   CONFIG.Actor.typeLabels = CONFIG.Actor.typeLabels || {};
-  CONFIG.Actor.typeLabels.character = game.i18n.localize("TYPES.Actor.character") || "Personaggio";
+  CONFIG.Actor.typeLabels.character = game.i18n.localize("TYPES.Actor.character") || "Character";
 
-  Actors.registerSheet("maiale-a-un-matrimonio", MaialeActorSheet, {
+  Actors.registerSheet("pig-at-a-wedding", PAWActorSheet, {
     types: ["character"],
     makeDefault: true,
-    label: "Maiale Sheet",
+    label: "Actor Sheet",
   });
 
   // Ensure newly created characters have a usable portrait and prototype token
@@ -34,7 +34,7 @@ Hooks.once("init", async function () {
       }
       if (Object.keys(updates).length) await actor.update(updates);
     } catch (err) {
-      console.error("Maiale | Error setting default token:", err);
+      console.error("Actor | Error setting default token:", err);
     }
   });
 });

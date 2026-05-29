@@ -1,13 +1,16 @@
 {
   "TYPES": {
     "Actor": {
-      "character": "Personaggio"
+      "character": "Character"
     }
   },
-  "MAIALE": {
+  "ACTOR": {
     "FIELDS": {
       "ability": {
         "label": "Expertise"
+      },
+      "abilityBonus": {
+        "label": "Ability Bonus"
       },
       "flaw": {
         "label": "Flaw"
@@ -16,7 +19,7 @@
         "label": "Cutaway failures"
       },
       "gambit": {
-        "label": "Gambit die"
+        "label": "Gambit Difficulty"
       }
     },
     "Sheet": {
@@ -24,7 +27,7 @@
       "Flaw": "Flaw",
       "Cutaway": "Cutaway failures",
       "ActionRoll": "Roll Action (d20)",
-      "Gambit": "Gambit die"
+      "Gambit": "Gambit Difficulty"
     }
   }
 }

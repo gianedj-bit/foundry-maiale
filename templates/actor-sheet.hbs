@@ -1,55 +1,58 @@
-<div class="maiale-sheet">
-  <header class="maiale-sheet__header">
-    <div class="maiale-sheet__portrait" data-action="configurePrototypeToken" title="Configure Token">
+<div class="actor-sheet">
+  <header class="actor-sheet__header">
+    <div class="actor-sheet__portrait" data-action="configurePrototypeToken" title="Configure Token">
       <img src="{{#if document.img}}{{document.img}}{{else}}{{#if document.prototypeToken}}{{document.prototypeToken.texture.src}}{{else}}icons/svg/mystery-man.svg{{/if}}{{/if}}" alt="portrait" />
     </div>
-    <div class="maiale-sheet__meta">
+    <div class="actor-sheet__meta">
       <label for="actor-name">Name</label>
       <input type="text" id="actor-name" name="name" value="{{document.name}}" />
-      <button type="button" class="maiale-sheet__save" data-action="save">Salva</button>
+      <button type="button" class="actor-sheet__save" data-action="save">Save</button>
     </div>
   </header>
-  <section class="maiale-sheet__body">
-    <div class="maiale-sheet__section">
-      <h2>Attributi del personaggio</h2>
-      <div class="maiale-sheet__field">
+  <section class="actor-sheet__body">
+    <div class="actor-sheet__section">
+      <h2>Character Details</h2>
+      <div class="actor-sheet__field">
         <label for="ability">Expertise</label>
         <input type="text" name="system.ability" id="ability" value="{{system.ability}}" />
       </div>
-      <div class="maiale-sheet__field">
+      <div class="actor-sheet__field">
         <label for="flaw">Flaw</label>
         <input type="text" name="system.flaw" id="flaw" value="{{system.flaw}}" />
       </div>
-      <div class="maiale-sheet__field">
+      <div class="actor-sheet__field">
         <label for="cutaway">Cutaway failures</label>
         <input type="number" min="0" data-dtype="Number" name="system.cutaway" id="cutaway" value="{{system.cutaway}}" />
       </div>
     </div>
 
-    <div class="maiale-sheet__section">
+    <div class="actor-sheet__section">
       <h2>Rolls</h2>
-      <p>Use the button below to send separate chat results for action and gambit.</p>
+      <p>Use the button below to roll Action and Gambit as separate chat messages.</p>
 
-      <div class="maiale-sheet__controls">
-        <span>Ability bonus</span>
-        <label for="ability-bonus-off">
+      <div class="actor-sheet__controls actor-sheet__controls--bonus">
+        <span class="actor-sheet__controls-title">Ability Bonus</span>
+        <label class="actor-sheet__radio-option" for="ability-bonus-off">
           <input type="radio" id="ability-bonus-off" name="system.abilityBonus" value="false" data-dtype="Boolean" {{#unless system.abilityBonus}}checked{{/unless}} />
           Off
         </label>
-        <label for="ability-bonus-on">
+        <label class="actor-sheet__radio-option" for="ability-bonus-on">
           <input type="radio" id="ability-bonus-on" name="system.abilityBonus" value="true" data-dtype="Boolean" {{#if system.abilityBonus}}checked{{/if}} />
           On (+3)
         </label>
       </div>
 
-      <div class="maiale-sheet__controls">
-        <label for="gambit">Gambit die</label>
+      <div class="actor-sheet__controls actor-sheet__controls--gambit">
+        <label for="gambit">Gambit Difficulty</label>
         <select name="system.gambit" id="gambit">
           {{#each gambitOptions as |option|}}
             <option value="{{option.value}}" {{#if option.selected}}selected{{/if}}>{{option.label}}</option>
           {{/each}}
         </select>
-        <button type="button" data-action="rollAll">Roll Action + Gambit</button>
+      </div>
+
+      <div class="actor-sheet__controls actor-sheet__controls--center">
+        <button type="button" data-action="rollAll">Roll Action</button>
       </div>
     </div>
   </section>

@@ -1,25 +1,25 @@
 // Note: prefer Foundry's expandObject util where available (foundry.utils.expandObject).
 
-export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
+export class ActorActorSheet extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     actions: {
-      rollAll: MaialeActorSheet.#onRollAllAction,
-      save: MaialeActorSheet.#onSaveAction,
+      rollAll: ActorActorSheet.#onRollAllAction,
+      save: ActorActorSheet.#onSaveAction,
     },
-    classes: ["maiale", "sheet", "actor"],
+    classes: ["actor", "sheet"],
     position: {
       width: 600,
       height: 620,
     },
     window: {
-      title: "Personaggio",
+      title: "Character",
       icon: "fas fa-user",
     },
   };
 
   static PARTS = {
     main: {
-      template: "systems/maiale-a-un-matrimonio/templates/actor-sheet.hbs",
+      template: "systems/pig-at-a-wedding/templates/actor-sheet.hbs",
     },
   };
 
@@ -49,7 +49,7 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
   }
 
   _getSheetRoot() {
-    return this.element?.querySelector(".maiale-sheet") ?? this.element;
+    return this.element?.querySelector(".actor-sheet") ?? this.element;
   }
 
   _castFieldValue(field, rawValue) {
@@ -96,15 +96,15 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
   }
 
   async _onSave(event) {
-    console.log("Maiale | _onSave", this.document?.id, this.document?.name);
+    console.log("Actor | _onSave", this.document?.id, this.document?.name);
     try {
       const submitData = this._collectSubmitData();
-      console.log("Maiale | save data:", submitData);
+      console.log("Actor | save data:", submitData);
       await this.document.update(submitData);
-      ui.notifications?.info("Scheda salvata");
+      ui.notifications?.info("Sheet saved");
     } catch (err) {
-      console.error("Maiale | save failed", err);
-      ui.notifications?.error("Errore nel salvataggio della scheda");
+      console.error("Actor | save failed", err);
+      ui.notifications?.error("Failed to save sheet");
     }
   }
 
@@ -113,10 +113,10 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
     const abilityBonus = abilityBonusEnabled ? 3 : 0;
     const formula = abilityBonus ? "1d20 + 3" : "1d20";
 
-    console.log("Maiale | _rollAction", this.document?.id, this.document?.name, { abilityBonusEnabled });
+    console.log("Actor | _rollAction", this.document?.id, this.document?.name, { abilityBonusEnabled });
     try {
       const roll = new Roll(formula);
-      await roll.evaluate({ async: true });
+      await roll.evaluate();
 
       const speaker = ChatMessage.getSpeaker({ actor: this.document });
       const flavor = abilityBonus
@@ -125,7 +125,7 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
       try {
         await roll.toMessage({ speaker, flavor, create: true });
       } catch (err) {
-        console.warn("Maiale | roll.toMessage failed, falling back to ChatMessage.create", err);
+        console.warn("Actor | roll.toMessage failed, falling back to ChatMessage.create", err);
         await ChatMessage.create({ speaker, content: `${flavor}: <strong>${roll.total}</strong>` });
       }
 
@@ -137,40 +137,40 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
         await ChatMessage.create({ speaker, content: `<p><strong>${this.document.name}</strong> failed the action. Cutaway failures increased to <strong>${nextCutaway}</strong>.</p>` });
       }
     } catch (err) {
-      console.error("Maiale | _onRollAction error", err);
-      ui.notifications?.error("Errore nel lancio del dado");
+      console.error("Actor | _onRollAction error", err);
+      ui.notifications?.error("Action roll failed");
     }
   }
 
   async _rollGambit() {
     const die = this._getCurrentValue("system.gambit", this.document.system.gambit || "d6");
-    console.log("Maiale | _rollGambit", this.document?.id, this.document?.name, die);
+    console.log("Actor | _rollGambit", this.document?.id, this.document?.name, die);
     try {
       const expr = die.startsWith("d") ? `1${die}` : die;
       const roll = new Roll(expr);
-      await roll.evaluate({ async: true });
+      await roll.evaluate();
 
       const speaker = ChatMessage.getSpeaker({ actor: this.document });
       try {
-        await roll.toMessage({ speaker, flavor: `<strong>${this.document.name}</strong> rolls Gambit (${die})`, create: true });
+        await roll.toMessage({ speaker, flavor: `<strong>${this.document.name}</strong> rolls Gambit Difficulty (${die})`, create: true });
       } catch (err) {
-        console.warn("Maiale | gambit roll.toMessage failed, falling back", err);
-        await ChatMessage.create({ speaker, content: `<strong>${this.document.name}</strong> rolls Gambit (${die}): <strong>${roll.total}</strong>` });
+        console.warn("Actor | gambit roll.toMessage failed, falling back", err);
+        await ChatMessage.create({ speaker, content: `<strong>${this.document.name}</strong> rolls Gambit Difficulty (${die}): <strong>${roll.total}</strong>` });
       }
     } catch (err) {
-      console.error("Maiale | _onRollGambit error", err);
-      ui.notifications?.error("Errore nel lancio del dado gambit");
+      console.error("Actor | _onRollGambit error", err);
+      ui.notifications?.error("Gambit roll failed");
     }
   }
 
   async _onRollAll(event) {
-    console.log("Maiale | _onRollAll", this.document?.id, this.document?.name);
+    console.log("Actor | _onRollAll", this.document?.id, this.document?.name);
     try {
       await this._rollAction();
       await this._rollGambit();
     } catch (err) {
-      console.error("Maiale | _onRollAll error", err);
-      ui.notifications?.error("Errore nel lancio dei dadi");
+      console.error("Actor | _onRollAll error", err);
+      ui.notifications?.error("Roll failed");
     }
   }
 }

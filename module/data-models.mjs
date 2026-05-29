@@ -1,5 +1,5 @@
-export class MaialeCharacterData extends foundry.abstract.TypeDataModel {
-  static LOCALIZATION_PREFIXES = ["MAIALE"];
+export class ActorCharacterData extends foundry.abstract.TypeDataModel {
+  static LOCALIZATION_PREFIXES = ["ACTOR"];
 
   static defineSchema() {
     const fields = foundry.data.fields;
