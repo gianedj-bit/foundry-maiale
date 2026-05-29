@@ -1,4 +1,4 @@
-export class ActorCharacterData extends foundry.abstract.TypeDataModel {
+export class PAWActorCharacterData extends foundry.abstract.TypeDataModel {
   static LOCALIZATION_PREFIXES = ["ACTOR"];
 
   static defineSchema() {

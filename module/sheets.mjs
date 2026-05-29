@@ -1,10 +1,10 @@
 // Note: prefer Foundry's expandObject util where available (foundry.utils.expandObject).
 
-export class ActorActorSheet extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
+export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     actions: {
-      rollAll: ActorActorSheet.#onRollAllAction,
-      save: ActorActorSheet.#onSaveAction,
+      rollAll: PAWActorSheet.#onRollAllAction,
+      save: PAWActorSheet.#onSaveAction,
     },
     classes: ["actor", "sheet"],
     position: {
@@ -19,7 +19,7 @@ export class ActorActorSheet extends foundry.applications.api.HandlebarsApplicat
 
   static PARTS = {
     main: {
-      template: "systems/pig-at-a-wedding/templates/actor-sheet.hbs",
+      template: "templates/actor-sheet.hbs",
     },
   };
 
