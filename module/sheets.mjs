@@ -2,26 +2,47 @@
 
 export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
   static DEFAULT_OPTIONS = {
-    classes: ["maiale", "sheet", "actor"],
+    actions: {
+      editPortrait: MaialeActorSheet.#onEditPortraitAction,
+      rollAction: MaialeActorSheet.#onRollActionAction,
+      rollGambit: MaialeActorSheet.#onRollGambitAction,
+    },
+    classes: ["maiale", "sheet", "actor", "standard-form"],
+    form: {
+      closeOnSubmit: false,
+      submitOnChange: false,
+    },
     position: {
       width: 600,
       height: 620,
     },
     window: {
+      contentTag: "form",
       title: "Personaggio",
       icon: "fas fa-user",
     },
   };
-
-  static get defaultOptions() {
-    return mergeObject(super.defaultOptions, this.DEFAULT_OPTIONS);
-  }
 
   static PARTS = {
     main: {
       template: "systems/maiale-a-un-matrimonio/templates/actor-sheet.hbs",
     },
   };
+
+  static async #onEditPortraitAction(event) {
+    event.preventDefault();
+    return this._onEditPortrait(event);
+  }
+
+  static async #onRollActionAction(event) {
+    event.preventDefault();
+    return this._onRollAction(event);
+  }
+
+  static async #onRollGambitAction(event) {
+    event.preventDefault();
+    return this._onRollGambit(event);
+  }
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
@@ -38,65 +59,7 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
     return context;
   }
 
-  activateListeners(html) {
-    super.activateListeners(html);
-    console.log("Maiale | activateListeners: binding events", !!html, this.document?.id);
-
-    // Normalize a root DOM element for binding whether `html` is a jQuery wrapper
-    // or a native HTMLElement. Bind both jQuery-style delegated handlers and
-    // direct DOM listeners as a fallback so handlers fire reliably.
-    const rootEl = (html && html[0]) ? html[0] : (html && html instanceof HTMLElement ? html : (this.element?.[0] ?? this.element));
-
-    // jQuery-style delegated bindings when available
-    if (html && typeof html.on === "function") {
-      // Do NOT bind a custom save click handler here; rely on the DocumentSheetV2
-      // form submit handling. Keep roll/portrait/change handlers.
-      html.on("click", "button[data-action='rollAction']", this._onRollAction.bind(this));
-      html.on("click", "button[data-action='rollGambit']", this._onRollGambit.bind(this));
-      html.on("click", ".maiale-sheet__portrait", this._onEditPortrait.bind(this));
-      html.on("change", "input, select, textarea", this._onFieldChange.bind(this));
-      return;
-    }
-
-    // Fallback: attach native DOM listeners to elements inside the rendered root
-    if (rootEl && rootEl.querySelector) {
-      rootEl.querySelectorAll("button[data-action='rollAction']").forEach((el) => el.addEventListener("click", this._onRollAction.bind(this)));
-      rootEl.querySelectorAll("button[data-action='rollGambit']").forEach((el) => el.addEventListener("click", this._onRollGambit.bind(this)));
-      rootEl.querySelectorAll(".maiale-sheet__portrait").forEach((el) => el.addEventListener("click", this._onEditPortrait.bind(this)));
-      rootEl.querySelectorAll("input, select, textarea").forEach((el) => el.addEventListener("change", this._onFieldChange.bind(this)));
-    }
-  }
-
-  async _onFieldChange(event) {
-    const target = event.currentTarget;
-    const field = target.name;
-    if (!field) return;
-
-    const value = target.type === "number" ? Number(target.value) : (target.type === "checkbox" ? target.checked : target.value);
-    // Use Foundry's expandObject util when available to build a nested update.
-    if (field.includes(".")) {
-      const flat = { [field]: value };
-      const nested = (foundry?.utils?.expandObject) ? foundry.utils.expandObject(flat) : (() => {
-        // Fallback simple expansion
-        const out = {};
-        for (const k of Object.keys(flat)) {
-          const parts = k.split('.');
-          let cur = out;
-          for (let i = 0; i < parts.length; i++) {
-            const p = parts[i];
-            if (i === parts.length - 1) cur[p] = flat[k]; else { cur[p] = cur[p] || {}; cur = cur[p]; }
-          }
-        }
-        return out;
-      })();
-      await this.document.update(nested);
-    } else {
-      await this.document.update({ [field]: value });
-    }
-  }
-
   async _onRollAction(event) {
-    event.preventDefault();
     console.log("Maiale | _onRollAction", this.document?.id, this.document?.name);
     try {
       const roll = new Roll("1d20");
@@ -124,7 +87,6 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
   }
 
   async _onRollGambit(event) {
-    event.preventDefault();
     console.log("Maiale | _onRollGambit", this.document?.id, this.document?.name, this.document?.system?.gambit);
     try {
       const die = this.document.system.gambit || "d6";
@@ -146,7 +108,6 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
   }
 
   async _onEditPortrait(event) {
-    event.preventDefault();
     console.log("Maiale | _onEditPortrait invoked for", this.document?.id, this.document?.name);
     // Try multiple constructor patterns for TokenConfig so third-party modules
     // (e.g., Tokenizer) that hook TokenConfig rendering can intercept correctly.
@@ -191,12 +152,13 @@ export class MaialeActorSheet extends foundry.applications.api.HandlebarsApplica
       ui.notifications?.error("Impossibile aprire la configurazione del token");
     }
   }
+
   // Let DocumentSheetV2's form handling perform the actual update. We override
   // _processSubmitData to log and show a notification after the builtin update.
   async _processSubmitData(event, form, submitData, options) {
     try {
       console.log("Maiale | submit data:", submitData);
-      await super._processSubmitData?.(event, form, submitData, options);
+      await super._processSubmitData(event, form, submitData, options);
       ui.notifications?.info("Scheda salvata");
     } catch (err) {
       console.error("Maiale | submit failed", err);
