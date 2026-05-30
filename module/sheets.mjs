@@ -1,8 +1,8 @@
 // Note: prefer Foundry's expandObject util where available (foundry.utils.expandObject).
 const SYSTEM_ID = "pig-at-a-wedding";
 const ACTOR_SHEET_TEMPLATE = `systems/${SYSTEM_ID}/templates/actor-sheet.hbs`;
-const DEFAULT_LAYOUT = Object.freeze({ width: 720, height: 760 });
-const EXPANDED_LAYOUT = Object.freeze({ width: 760, height: 820 });
+const DEFAULT_LAYOUT = Object.freeze({ width: 720, height: 900 });
+const EXPANDED_LAYOUT = Object.freeze({ width: 760, height: 980 });
 
 export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
   static DEFAULT_OPTIONS = {
@@ -67,7 +67,7 @@ export class PAWActorSheet extends foundry.applications.api.HandlebarsApplicatio
     const minWidth = Math.min(layout.width, viewportWidth);
     const minHeight = Math.min(layout.height, viewportHeight);
     const maxWidth = Math.min(960, viewportWidth);
-    const maxHeight = Math.min(900, viewportHeight);
+    const maxHeight = Math.min(1080, viewportHeight);
 
     if (this.element) {
       this.element.style.minWidth = `${minWidth}px`;
